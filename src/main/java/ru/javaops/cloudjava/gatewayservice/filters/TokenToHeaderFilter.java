@@ -1,6 +1,7 @@
 package ru.javaops.cloudjava.gatewayservice.filters;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -15,7 +16,7 @@ public class TokenToHeaderFilter implements GlobalFilter, Ordered {
     private static final String USERNAME_HEADER = "X-User-Name";
 
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+    public @NonNull Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         return exchange.getPrincipal()
                 .filter(p -> p instanceof Authentication).cast(Authentication.class)
                 .map(authentication -> withUserNameHeader(exchange, authentication.getName()))

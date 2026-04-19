@@ -1,14 +1,16 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.2.5'
-    id 'io.spring.dependency-management' version '1.1.5'
+    id 'org.springframework.boot' version '4.0.2'
+    id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'ru.javaops.cloudjava'
 version = '0.0.1-SNAPSHOT'
 
 java {
-    sourceCompatibility = '17'
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
 }
 
 configurations {
@@ -22,26 +24,36 @@ repositories {
 }
 
 ext {
-    springCloudVersion ='2023.0.1'
-    lokiAppenderVersion ='1.5.1'
+    springCloudVersion ='2025.1.0'
+    lokiAppenderVersion = '2.0.3'
+    springRetryVersion = '2.0.12'
 }
 
 dependencies {
+    implementation 'org.springframework.boot:spring-boot-micrometer-tracing-brave'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'io.micrometer:micrometer-tracing-bridge-brave'
-    implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
+    implementation 'org.springframework.boot:spring-boot-starter-aspectj'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
+    implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-resource-server'
+    implementation 'org.springframework.boot:spring-boot-starter-zipkin'
+    implementation "org.springframework.retry:spring-retry:${springRetryVersion}"
+    implementation 'io.micrometer:micrometer-tracing-bridge-brave'
     implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j'
-    implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
-    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     implementation 'org.springframework.cloud:spring-cloud-starter-config'
-    implementation 'org.springframework.retry:spring-retry'
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+    implementation 'org.springframework.cloud:spring-cloud-starter-gateway-server-webflux'
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
     runtimeOnly "com.github.loki4j:loki-logback-appender:${lokiAppenderVersion}"
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-micrometer-tracing-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-actuator-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-aspectj-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-security-oauth2-resource-server-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-zipkin-test'
+    testImplementation 'io.projectreactor:reactor-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 dependencyManagement {
@@ -52,7 +64,8 @@ dependencyManagement {
 
 bootBuildImage {
     imageName = "${project.name}"
-    environment = ["BP_JVM_VERSION": "17.*"]
+    createdDate = "now"
+    environment = ["BP_JVM_VERSION": "25.*"]
     docker {
         host = "//./pipe/dockerDesktopLinuxEngine"
     }
